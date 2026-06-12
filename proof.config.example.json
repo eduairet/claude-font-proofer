@@ -1,0 +1,29 @@
+{
+  "_comment": "Example of the config /init-font writes to proof.config.json. Do not edit this example; run /init-font to generate the real one.",
+  "version": 1,
+  "page": {
+    "size": "letter",
+    "custom_size": null,
+    "orientation": "portrait",
+    "margins_mm": { "top": 20, "bottom": 20, "inner": 18, "outer": 18 }
+  },
+  "colors": {
+    "scheme": "black-on-white",
+    "foreground": "#000000",
+    "background": "#ffffff"
+  },
+  "header": { "enabled": true, "contents": ["family-name", "style-name"] },
+  "footer": { "enabled": true, "contents": ["page-number", "date"] },
+  "sections": [
+    "waterfall",
+    "character-set",
+    "spacing-strings",
+    "kerning-pairs",
+    "paragraphs",
+    "opentype-features",
+    "variable-axes",
+    "language-specimens"
+  ],
+  "fonts": ["fonts/ExampleFont-Regular.otf"],
+  "output": { "filename": "ExampleFont-proof.pdf", "directory": "output" }
+}

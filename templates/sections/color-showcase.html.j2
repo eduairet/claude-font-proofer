@@ -1,0 +1,8 @@
+<h2 class="section-title">{{ section.title or "Color glyphs" }}</h2>
+{% for size in section.sizes_pt %}
+<div class="waterfall-row">
+  <span class="label">{{ size }} pt</span>
+  <span class="waterfall-text specimen"
+        style="font-family: '{{ section.font_family }}'; font-size: {{ size }}pt;">{{ section.text }}</span>
+</div>
+{% endfor %}

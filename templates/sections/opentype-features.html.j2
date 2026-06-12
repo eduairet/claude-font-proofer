@@ -1,0 +1,13 @@
+<h2 class="section-title">{{ section.title or "OpenType features" }}</h2>
+<div class="feature-row feature-head">
+  <span>feature</span><span>off</span><span>on</span>
+</div>
+{% for item in section["items"] %}
+<div class="feature-row">
+  <span class="label">{{ item.feature }}{% if item.label %} · {{ item.label }}{% endif %}</span>
+  <span class="feature-cell specimen"
+        style="font-family: '{{ section.font_family }}'; font-size: {{ item.size_pt or section.size_pt or 14 }}pt; font-feature-settings: '{{ item.feature }}' 0;">{{ item.text }}</span>
+  <span class="feature-cell specimen"
+        style="font-family: '{{ section.font_family }}'; font-size: {{ item.size_pt or section.size_pt or 14 }}pt; font-feature-settings: '{{ item.feature }}' 1;">{{ item.text }}</span>
+</div>
+{% endfor %}

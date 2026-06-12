@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+  :root {
+    --fg: {{ colors.foreground }};
+    --bg: {{ colors.background }};
+    --content-h: {{ content_height_mm }}mm;
+  }
+{% for font in fonts %}
+  @font-face {
+    font-family: "{{ font.css_family }}";
+    src: url("{{ font.src_url }}") format("{{ font.src_format }}");
+  }
+{% endfor %}
+{{ base_css }}
+</style>
+</head>
+<body>
+{% for section in sections %}
+  <div class="section section-{{ section.type }}">
+  {% include "sections/" + section.type + ".html.j2" %}
+  </div>
+{% endfor %}
+</body>
+</html>

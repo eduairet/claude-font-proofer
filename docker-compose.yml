@@ -1,0 +1,19 @@
+services:
+  proofer:
+    build: .
+    image: ai-font-proofer
+    # Reap Chromium's child processes properly
+    init: true
+    # Chromium needs more shared memory than Docker's 64 MB default
+    shm_size: "1gb"
+    # On Windows and macOS, Docker Desktop maps file ownership automatically
+    # and the default (root, 0:0) is correct. On Linux, run as your own user
+    # so generated PDFs aren't owned by root:
+    #   export HOST_UID=$(id -u) HOST_GID=$(id -g)
+    user: "${HOST_UID:-0}:${HOST_GID:-0}"
+    environment:
+      # A writable HOME so Chromium starts even under the non-root mapping above
+      HOME: /tmp
+    volumes:
+      - ./:/work
+    working_dir: /work

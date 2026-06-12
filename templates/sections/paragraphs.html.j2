@@ -1,0 +1,10 @@
+<h2 class="section-title">{{ section.title or "Text specimens" }}</h2>
+{% for spec in section.specimens %}
+<div class="paragraph-block">
+  <span class="label">{{ spec.label }}</span>
+  <p class="paragraph-text specimen"
+     {% if spec.lang %}lang="{{ spec.lang }}"{% endif %}
+     {% if spec.dir %}dir="{{ spec.dir }}"{% endif %}
+     style="font-family: '{{ section.font_family }}'; font-size: {{ spec.size_pt or 9 }}pt; line-height: {{ spec.line_height or 1.4 }};{{ spec.style_extra }}">{{ spec.text }}</p>
+</div>
+{% endfor %}

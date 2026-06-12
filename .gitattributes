@@ -1,0 +1,16 @@
+# Normalize line endings across Windows/macOS/Linux checkouts.
+* text=auto
+
+# These must always be LF — CRLF breaks them at runtime.
+*.sh text eol=lf
+*.py text eol=lf
+*.crt text eol=lf
+Dockerfile text eol=lf
+
+# Fonts and PDFs are binary; never normalize.
+*.otf binary
+*.ttf binary
+*.ttc binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

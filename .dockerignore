@@ -1,0 +1,5 @@
+# Allowlist: the image build only ever needs these two files. Everything else
+# (especially the user's fonts) must never enter the build context.
+*
+!requirements.txt
+!extra-ca.crt

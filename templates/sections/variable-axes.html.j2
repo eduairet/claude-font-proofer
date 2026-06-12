@@ -1,0 +1,13 @@
+<h2 class="section-title">{{ section.title or "Variable axes" }}</h2>
+{% for axis in section.axes %}
+<div class="axis-block">
+  <span class="label">{{ axis.tag }}{% if axis.name %} · {{ axis.name }}{% endif %}</span>
+  {% for step in axis.steps %}
+  <div class="axis-row">
+    <span class="label">{{ step }}</span>
+    <span class="axis-text specimen"
+          style="font-family: '{{ section.font_family }}'; font-size: {{ axis.size_pt or section.size_pt or 22 }}pt; font-variation-settings: '{{ axis.tag }}' {{ step }};">{{ axis.text }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}

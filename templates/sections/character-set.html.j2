@@ -1,0 +1,14 @@
+<h2 class="section-title">{{ section.title or "Character set" }}</h2>
+{% for group in section.groups %}
+<div class="charset-group">
+  <span class="label">{{ group.label }}</span>
+  <div class="charset-grid">
+    {% for ch in group.chars %}
+    <div class="glyph-cell">
+      <span class="glyph specimen" style="font-family: '{{ section.font_family }}';">{{ ch }}</span>
+      <span class="glyph-cp">{{ "%04X" | format(ch | cp) }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endfor %}

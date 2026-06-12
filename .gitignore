@@ -216,3 +216,26 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ── ai-font-proofer ──────────────────────────────────────────────
+# Your fonts are YOURS. They are never committed or redistributed.
+fonts/*
+!fonts/.gitkeep
+!fonts/README.md
+
+# Generated proofs and web test pages stay local.
+output/*
+!output/.gitkeep
+web-tests/*
+!web-tests/.gitkeep
+
+# Generated per-font context and config (created by /init-font), and the
+# typographer's generated proof content.
+proof.config.json
+proof.content.json
+fontinfo.json
+.hyperglot-cache
+
+# Machine-specific TLS certificate for antivirus/corporate networks
+# (see README troubleshooting). Never commit it.
+extra-ca.crt

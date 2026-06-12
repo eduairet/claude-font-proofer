@@ -1,0 +1,9 @@
+<div class="cover">
+  <div>
+    <h1 class="cover-title specimen" style="font-family: '{{ section.font_family }}';">{{ section.title }}</h1>
+    {% if section.subtitle %}<div class="cover-subtitle">{{ section.subtitle }}</div>{% endif %}
+  </div>
+  <div class="cover-meta">
+    {% for line in section.lines or [] %}{{ line }}<br>{% endfor %}
+  </div>
+</div>

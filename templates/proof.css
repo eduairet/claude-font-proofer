@@ -1,0 +1,217 @@
+/* Shared scaffolding styles for all proof sections.
+   Scaffolding (labels, rules, captions) uses DejaVu Sans — neutral and always
+   present in the container. The specimen text itself always uses the proofed
+   font via the per-font CSS families declared in proof.html.j2. */
+
+:root {
+  /* --fg / --bg are injected by the renderer from proof.config.json */
+  --muted: color-mix(in srgb, var(--fg) 55%, var(--bg));
+  --hairline: color-mix(in srgb, var(--fg) 75%, var(--bg));
+}
+
+html {
+  /* Root background propagates to the full printed sheet, margins included */
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  color: var(--fg);
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 8pt;
+}
+
+.section {
+  break-after: page;
+}
+
+.section:last-child {
+  break-after: auto;
+}
+
+.section-title {
+  font-size: 8.5pt;
+  font-weight: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-bottom: 0.6pt solid var(--hairline);
+  padding-bottom: 5pt;
+  margin: 0 0 16pt;
+}
+
+.label {
+  font-size: 6.5pt;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.specimen {
+  /* per-section font-family is set inline by the templates */
+  line-height: 1.25;
+}
+
+/* ---------------------------------------------------------------- cover */
+
+.cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* --content-h (page height minus margins) is injected by the renderer;
+     the 2mm slack prevents rounding from spilling onto a second page */
+  height: calc(var(--content-h) - 2mm);
+}
+
+.cover-title {
+  font-size: 44pt;
+  line-height: 1.05;
+  margin: 18mm 0 6pt;
+}
+
+.cover-subtitle {
+  font-size: 13pt;
+  color: var(--muted);
+}
+
+.cover-meta {
+  font-size: 7.5pt;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ------------------------------------------------------------ waterfall */
+
+.waterfall-row {
+  display: grid;
+  grid-template-columns: 34pt 1fr;
+  align-items: baseline;
+  column-gap: 8pt;
+  margin-bottom: 7pt;
+}
+
+.waterfall-text {
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.06;
+}
+
+/* -------------------------------------------------------- character set */
+
+.charset-group {
+  margin-bottom: 14pt;
+  break-inside: avoid;
+}
+
+.charset-group .label {
+  display: block;
+  margin-bottom: 6pt;
+}
+
+.charset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36pt, 1fr));
+  gap: 6pt 2pt;
+}
+
+.glyph-cell {
+  text-align: center;
+  border: 0.4pt solid color-mix(in srgb, var(--fg) 18%, var(--bg));
+  padding: 5pt 0 3pt;
+}
+
+.glyph {
+  font-size: 17pt;
+  line-height: 1.3;
+  display: block;
+}
+
+.glyph-cp {
+  font-size: 5pt;
+  color: var(--muted);
+  font-family: "DejaVu Sans Mono", monospace;
+}
+
+/* ---------------------------------------------- spacing & kerning rows */
+
+.string-row {
+  margin-bottom: 9pt;
+  break-inside: avoid;
+}
+
+.string-row .label {
+  display: block;
+  margin-bottom: 2pt;
+}
+
+.string-text {
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.15;
+}
+
+/* ------------------------------------------------------------ paragraphs */
+
+.paragraph-block {
+  margin-bottom: 16pt;
+  break-inside: avoid;
+}
+
+.paragraph-block .label {
+  display: block;
+  margin-bottom: 4pt;
+}
+
+.paragraph-text {
+  text-align: justify;
+  hyphens: none;
+}
+
+/* ---------------------------------------------------- feature showcase */
+
+.feature-row {
+  display: grid;
+  grid-template-columns: 52pt 1fr 1fr;
+  column-gap: 10pt;
+  align-items: baseline;
+  margin-bottom: 11pt;
+  break-inside: avoid;
+}
+
+.feature-cell {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.feature-head {
+  font-size: 6.5pt;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  border-bottom: 0.4pt solid color-mix(in srgb, var(--fg) 18%, var(--bg));
+  padding-bottom: 2pt;
+  margin-bottom: 8pt;
+}
+
+/* ------------------------------------------------------- variable axes */
+
+.axis-block {
+  margin-bottom: 18pt;
+  break-inside: avoid;
+}
+
+.axis-block > .label {
+  display: block;
+  margin-bottom: 6pt;
+}
+
+.axis-row {
+  display: grid;
+  grid-template-columns: 46pt 1fr;
+  align-items: baseline;
+  column-gap: 8pt;
+  margin-bottom: 4pt;
+}
+
+.axis-text {
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.1;
+}

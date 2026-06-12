@@ -1,0 +1,21 @@
+# All versions pinned for reproducible builds. Update deliberately, then rebuild
+# with: docker compose build --no-cache
+
+# Font introspection and manipulation
+fonttools==4.63.0
+# fontTools helpers: woff/woff2 compression + fast Unicode database
+Brotli==1.2.0
+zopfli==0.4.3
+unicodedata2==17.0.1
+
+# Text shaping (HarfBuzz bindings) — used to verify features/scripts actually shape
+uharfbuzz==0.55.0
+
+# Language-coverage detection (which languages a font actually supports)
+hyperglot==0.8.1
+
+# HTML templating for proof pages
+Jinja2==3.1.6
+
+# Headless Chromium driver — renders the HTML proofs to PDF
+playwright==1.60.0

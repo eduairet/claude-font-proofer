@@ -1,0 +1,8 @@
+<h2 class="section-title">{{ section.title or "Kerning" }}</h2>
+{% for item in section.strings %}
+<div class="string-row">
+  {% if item.label %}<span class="label">{{ item.label }}</span>{% endif %}
+  <div class="string-text specimen"
+       style="font-family: '{{ section.font_family }}'; font-size: {{ item.size_pt or section.size_pt or 14 }}pt;">{{ item.text }}</div>
+</div>
+{% endfor %}
