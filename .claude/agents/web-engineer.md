@@ -71,6 +71,15 @@ other; show the live value next to each slider:
 
 Named instances become preset buttons that set all axes at once, then applyAxes().
 
+CRITICAL: drive the `wght` axis ONLY through `font-variation-settings`. Never
+also set `font-weight` (and never set `font-stretch` for `wdth`) from the
+slider. Browsers quantize `font-weight` to the standard 100–900 steps, and when
+both properties target the same axis they fight — the weight snaps between
+stops and overrides smooth `font-variation-settings` values. One property per
+axis, always `font-variation-settings`. The same goes for the proof side: the
+print templates set axes via `font-variation-settings` only, for the same
+reason.
+
 **Feature toggles** — checkboxes build one `font-feature-settings` string; list
 only features the font has, with designer-friendly labels (smcp → "Small caps"):
 

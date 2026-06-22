@@ -8,6 +8,8 @@
     --fg: {{ colors.foreground }};
     --bg: {{ colors.background }};
     --content-h: {{ content_height_mm }}mm;
+    --margin-inner: {{ margins.inner }}mm;
+    --margin-outer: {{ margins.outer }}mm;
   }
 {% for font in fonts %}
   @font-face {

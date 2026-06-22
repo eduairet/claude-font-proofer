@@ -142,8 +142,19 @@ TOKEN_VALUES = {
 }
 
 
-def header_footer_html(contents: list[str], faces: list[dict],
-                       colors: dict, margins: dict) -> str:
+def margin_band(contents: list[str], faces: list[dict],
+                colors: dict, margins: dict) -> str:
+    """Build a header/footer band that fills the whole top/bottom paper margin.
+
+    The band is painted in the page background color so that dark/custom color
+    schemes reach the very edge of the sheet — Chromium renders header/footer
+    templates *in* the paper margins, and element backgrounds are the only way
+    to color that strip. An empty (disabled) band is still a full background
+    rectangle, so the margin stays the right color either way.
+
+    Chromium renders these in an isolated context: inline styles only, explicit
+    font-size required, and print-color-adjust must be set for the fill.
+    """
     info = faces[0]["info"]
     names = info.get("names", {}) if info else {}
     rendered = []
@@ -159,12 +170,12 @@ def header_footer_html(contents: list[str], faces: list[dict],
         else:
             rendered.append(token)  # free text
     cells = "".join(f"<span>{part}</span>" for part in rendered if part)
-    # Chromium renders these in an isolated context: inline styles only, and
-    # the font size must be set explicitly or nothing shows up.
     return (
-        f'<div style="width:100%; display:flex; justify-content:space-between; '
-        f'align-items:baseline; font-family:DejaVu Sans, sans-serif; font-size:6.5pt; '
-        f'letter-spacing:0.07em; color:{colors["foreground"]}; '
+        f'<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;'
+        f'box-sizing:border-box;width:100%;height:100%;margin:0;'
+        f'background:{colors["background"]};color:{colors["foreground"]};'
+        f'display:flex;align-items:center;justify-content:space-between;'
+        f'font-family:DejaVu Sans, sans-serif;font-size:6.5pt;letter-spacing:0.07em;'
         f'padding:0 {margins["outer"]}mm 0 {margins["inner"]}mm;">{cells}</div>'
     )
 
@@ -201,6 +212,7 @@ def render_html(config: dict, content: dict, faces: list[dict],
         fonts=faces,
         sections=sections,
         colors=colors,
+        margins=margins,
         content_height_mm=content_height_mm,
         base_css=(templates_dir / "proof.css").read_text(encoding="utf-8"),
     )
@@ -215,8 +227,12 @@ def print_pdf(html_path: Path, output_path: Path, config: dict,
 
     header_cfg = config.get("header") or {}
     footer_cfg = config.get("footer") or {}
-    show_hf = bool(header_cfg.get("enabled") or footer_cfg.get("enabled"))
 
+    # Left/right paper margins are zero so the page background reaches both
+    # edges (the text is inset by body padding instead). Top/bottom stay as
+    # real paper margins: the header/footer bands fill them, which both paints
+    # those margins the page color and gives correct per-page text insets.
+    # The bands are always on — an empty band is just a colored margin strip.
     pdf_options: dict = {
         "path": str(output_path),
         "width": f"{width_mm}mm",
@@ -224,21 +240,18 @@ def print_pdf(html_path: Path, output_path: Path, config: dict,
         "margin": {
             "top": f"{margins['top']}mm",
             "bottom": f"{margins['bottom']}mm",
-            "left": f"{margins['inner']}mm",
-            "right": f"{margins['outer']}mm",
+            "left": "0",
+            "right": "0",
         },
         "print_background": True,
+        "display_header_footer": True,
+        "header_template": margin_band(
+            header_cfg.get("contents") or [] if header_cfg.get("enabled") else [],
+            faces, colors, margins),
+        "footer_template": margin_band(
+            footer_cfg.get("contents") or [] if footer_cfg.get("enabled") else [],
+            faces, colors, margins),
     }
-    if show_hf:
-        pdf_options["display_header_footer"] = True
-        pdf_options["header_template"] = (
-            header_footer_html(header_cfg.get("contents") or [], faces, colors, margins)
-            if header_cfg.get("enabled") else "<span></span>"
-        )
-        pdf_options["footer_template"] = (
-            header_footer_html(footer_cfg.get("contents") or [], faces, colors, margins)
-            if footer_cfg.get("enabled") else "<span></span>"
-        )
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
