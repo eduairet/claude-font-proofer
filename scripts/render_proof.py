@@ -142,8 +142,18 @@ TOKEN_VALUES = {
 }
 
 
+# Chromium renders header/footer templates inset ~5.3mm toward the page centre
+# (a fixed offset, independent of the configured margin — verified at 20mm and
+# 30mm). Left uncorrected, the band sits 5.3mm too low (header) / too high
+# (footer), so it (a) covers the first/last ~5mm of body content, slicing the
+# top line and bottom descenders on continuation pages, and (b) leaves the very
+# edge of the sheet unpainted, showing a white strip in dark mode. We cancel it
+# by translating each band back out to the page edge.
+BAND_INSET_MM = 5.3
+
+
 def margin_band(contents: list[str], faces: list[dict],
-                colors: dict, margins: dict) -> str:
+                colors: dict, margins: dict, edge: str) -> str:
     """Build a header/footer band that fills the whole top/bottom paper margin.
 
     The band is painted in the page background color so that dark/custom color
@@ -151,6 +161,9 @@ def margin_band(contents: list[str], faces: list[dict],
     templates *in* the paper margins, and element backgrounds are the only way
     to color that strip. An empty (disabled) band is still a full background
     rectangle, so the margin stays the right color either way.
+
+    `edge` is "top" or "bottom"; it selects the direction of the BAND_INSET_MM
+    correction so the band lands flush against the sheet edge.
 
     Chromium renders these in an isolated context: inline styles only, explicit
     font-size required, and print-color-adjust must be set for the fill.
@@ -170,9 +183,13 @@ def margin_band(contents: list[str], faces: list[dict],
         else:
             rendered.append(token)  # free text
     cells = "".join(f"<span>{part}</span>" for part in rendered if part)
+    # header: pull up (negative); footer: push down (positive) — both move the
+    # band outward to the sheet edge.
+    shift = -BAND_INSET_MM if edge == "top" else BAND_INSET_MM
     return (
         f'<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;'
         f'box-sizing:border-box;width:100%;height:100%;margin:0;'
+        f'position:relative;top:{shift}mm;'
         f'background:{colors["background"]};color:{colors["foreground"]};'
         f'display:flex;align-items:center;justify-content:space-between;'
         f'font-family:DejaVu Sans, sans-serif;font-size:6.5pt;letter-spacing:0.07em;'
@@ -247,10 +264,10 @@ def print_pdf(html_path: Path, output_path: Path, config: dict,
         "display_header_footer": True,
         "header_template": margin_band(
             header_cfg.get("contents") or [] if header_cfg.get("enabled") else [],
-            faces, colors, margins),
+            faces, colors, margins, "top"),
         "footer_template": margin_band(
             footer_cfg.get("contents") or [] if footer_cfg.get("enabled") else [],
-            faces, colors, margins),
+            faces, colors, margins, "bottom"),
     }
 
     with sync_playwright() as p:

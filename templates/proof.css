@@ -68,9 +68,10 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* --content-h (page height minus margins) is injected by the renderer;
-     the 2mm slack prevents rounding from spilling onto a second page */
-  height: calc(var(--content-h) - 2mm);
+  /* --content-h is the page height minus margins. Subtract a margin of slack
+     so (a) rounding never spills onto a second page and (b) the bottom meta
+     stays clear of the ~3mm footer-band overlap that would otherwise clip it. */
+  height: calc(var(--content-h) - 4mm);
 }
 
 .cover-title {
@@ -92,16 +93,24 @@ body {
 
 /* ------------------------------------------------------------ waterfall */
 
+/* Page-edge safety buffer.
+   The main page-edge clipping (the header/footer band intruding ~5mm into the
+   content area on every page) is corrected at the source in render_proof.py
+   (see BAND_INSET_MM). This small container padding is a secondary safety
+   margin: it absorbs the residual half-leading that Chromium trims from the
+   first line at a fragmentation break, and any minor variance in the band
+   offset. It is on the row/block CONTAINER (not the line) because container
+   padding survives a page break where cell padding, leading and margins do
+   not. Grid containers keep it across breaks; plain blocks need display:grid
+   (see .charset-group). */
 .waterfall-row {
   display: grid;
   grid-template-columns: 34pt 1fr;
   align-items: baseline;
   column-gap: 8pt;
-  margin-bottom: 7pt;
-  /* Each size line is a single nowrap line that can be taller than a normal
-     line of text; keep it whole so it moves to the next page instead of being
-     sliced through the middle at the page boundary. */
+  /* keep each single, possibly oversized line whole across a page break */
   break-inside: avoid;
+  padding: 2mm 0;
 }
 
 .waterfall-text {
@@ -109,22 +118,18 @@ body {
   /* visible so glyph overshoots and descenders are never clipped mid-page */
   overflow: visible;
   line-height: 1.1;
-  /* Clipping buffer for the first line on a page. When a line breaks onto a
-     new page Chromium collapses the half-leading above it, so the glyph tops
-     (ascenders, i-dots, accents) sit flush against the content edge and the
-     page box slices them. Unlike leading and margins, PADDING is not trimmed
-     at a page break, so this reserves real space above the glyphs. It is em-
-     based, so it scales with the inline type size set on this span. Pairs with
-     break-inside:avoid on the row, which already prevents bottom-edge and mid-
-     line slicing (a row only stays on a page if it fully fits). */
-  padding-top: 0.2em;
 }
 
 /* -------------------------------------------------------- character set */
 
 .charset-group {
+  /* display:grid (not plain block) so the padding-top below survives a page
+     break — Chromium trims block-container top padding at a fragmentation
+     boundary but keeps it for grid containers. */
+  display: grid;
   margin-bottom: 14pt;
   break-inside: avoid;
+  padding: 2mm 0; /* page-edge clipping buffer (see .waterfall-row) */
 }
 
 .charset-group .label {
@@ -162,8 +167,9 @@ body {
 /* ---------------------------------------------- spacing & kerning rows */
 
 .string-row {
-  margin-bottom: 9pt;
+  display: grid; /* grid so padding-top survives a page break (see .charset-group) */
   break-inside: avoid;
+  padding: 2mm 0; /* page-edge clipping buffer (see .waterfall-row) */
 }
 
 .string-row .label {
@@ -175,15 +181,14 @@ body {
   white-space: nowrap;
   overflow: visible;
   line-height: 1.15;
-  /* clip buffer for the top line on a page (see .waterfall-text) */
-  padding-top: 0.2em;
 }
 
 /* ------------------------------------------------------------ paragraphs */
 
 .paragraph-block {
-  margin-bottom: 16pt;
+  display: grid; /* grid so padding-top survives a page break (see .charset-group) */
   break-inside: avoid;
+  padding: 2mm 0; /* page-edge clipping buffer (see .waterfall-row) */
 }
 
 .paragraph-block .label {
@@ -194,6 +199,9 @@ body {
 .paragraph-text {
   text-align: justify;
   hyphens: none;
+  /* reset UA <p> margins: a trailing <p> margin made break-inside:avoid
+     miscount the block height and let it straddle the page bottom */
+  margin: 0;
 }
 
 /* ---------------------------------------------------- feature showcase */
@@ -203,15 +211,15 @@ body {
   grid-template-columns: 52pt 1fr 1fr;
   column-gap: 10pt;
   align-items: baseline;
-  margin-bottom: 11pt;
   break-inside: avoid;
+  padding: 2mm 0; /* page-edge clipping buffer (see .waterfall-row) */
 }
 
 .feature-cell {
   overflow: visible;
-  white-space: nowrap;
-  /* clip buffer for the top line on a page (see .waterfall-text) */
-  padding-top: 0.2em;
+  /* wrap long comparison strings so they never run off the page edge */
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .feature-head {
@@ -226,8 +234,12 @@ body {
 /* ------------------------------------------------------- variable axes */
 
 .axis-block {
+  display: grid; /* grid so padding-top survives a page break (see .charset-group) */
   margin-bottom: 18pt;
   break-inside: avoid;
+  /* protect the block's label if the whole block lands at a continuation top;
+     the rows carry their own buffer for when a tall block splits */
+  padding-top: 2mm;
 }
 
 .axis-block > .label {
@@ -240,15 +252,12 @@ body {
   grid-template-columns: 46pt 1fr;
   align-items: baseline;
   column-gap: 8pt;
-  margin-bottom: 4pt;
-  /* Single nowrap specimen line — keep it whole across page boundaries. */
   break-inside: avoid;
+  padding: 2mm 0; /* page-edge clipping buffer (see .waterfall-row) */
 }
 
 .axis-text {
   white-space: nowrap;
   overflow: visible;
   line-height: 1.1;
-  /* clip buffer for the top line on a page (see .waterfall-text) */
-  padding-top: 0.2em;
 }
