@@ -21,8 +21,9 @@ a restrained way, and require zero tooling.
 - Vanilla HTML/CSS/JS only. No frameworks, no CDNs, no imports from the network,
   no build step. Each test page is ONE self-contained .html file (inline CSS+JS)
   so designers can move or share it freely.
-- You don't run commands. The page is viewed via the serve command below — put it
-  in an HTML comment at the top of every page you generate.
+- You don't run commands. Pages are made self-contained and opened as described
+  in "Opening pages" below — put those instructions in an HTML comment at the top
+  of every page you generate.
 
 ## Before generating: ask
 
@@ -41,18 +42,30 @@ what the font supports, as a short checklist with your recommendation marked:
 If `proof.content.json` exists, reuse its language specimens and feature strings —
 the typographer chose them carefully; don't invent worse ones.
 
-## Serving (document this in every page header comment)
+## Opening pages (self-contained, preview-first)
 
-    docker compose run --rm -p 8765:8765 proofer python -m http.server 8765
+Pages must open in the **Claude app preview** as the first choice — no server,
+no external files. You write the `@font-face` pointing at the font file (below);
+the font is then baked into each page as a base64 `data:` URI by a one-time step:
 
-Then open http://localhost:8765/web-tests/ — serving from the repo root is what
-makes `/fonts/...` URLs work. Warn users that double-clicking the .html file may
-show fallback fonts in some browsers (file:// font loading is restricted);
-the serve command is the reliable path.
+    docker compose run --rm proofer python scripts/inline_web_fonts.py
+
+You don't run commands, so end your turn by telling the caller to run that step
+after your pages are written (it's idempotent; it rewrites every `url("/fonts/…")`
+into an embedded font, making each page a single self-contained file).
+
+Document this open order in every page's top HTML comment, in this priority:
+
+1. **Claude app preview** — open the .html directly (it's self-contained).
+2. **Double-click** the .html in any browser (works once the font is embedded).
+3. Last resort, serve the folder and browse:
+   `docker compose run --rm -p 8765:8765 proofer python -m http.server 8765`
+   → http://localhost:8765/web-tests/
 
 ## Canonical patterns
 
-**@font-face** — absolute path from the served repo root, percent-encode brackets:
+**@font-face** — point at the font from the repo root, percent-encode brackets.
+The inlining step embeds it; until then this also works under the serve command:
 
     @font-face {
       font-family: "TestFont";
@@ -104,8 +117,22 @@ designers type their own strings.
 area in the tested font; show the font's family name, version and file path
 (from fontinfo.json) so screenshots are self-documenting.
 
+## Never wider than the window
+
+The page must NEVER produce horizontal scroll, at any window size or type size —
+a big headline or a long pasted word must wrap, not push the page wide. This is
+non-negotiable. The usual culprit is a `1fr` grid/flex track refusing to shrink
+below its content's intrinsic width. Guard against it:
+
+- Layout columns use `minmax(0, 1fr)`, never bare `1fr`; flex/grid children that
+  hold specimen text get `min-width: 0`.
+- Specimen blocks get `overflow-wrap: anywhere` so even one giant word breaks.
+- `* { box-sizing: border-box }`; include `<meta name="viewport" …>`.
+- A fixed-width sidebar must collapse on narrow screens (a `@media` query that
+  stacks it above the specimen), so the layout also holds on a phone.
+
 ## Quality bar
 
 Controls must reflect state on load (run all apply* functions once), look fine on
-a laptop screen without horizontal scroll, and survive text the user pastes in.
-Keep the JS small and readable — a designer may open it to learn.
+a laptop screen, and survive text the user pastes in. Keep the JS small and
+readable — a designer may open it to learn.

@@ -16,7 +16,7 @@ This repository is a template that helps a **type designer** (usually not a prog
 
 1. The user drops fonts into `fonts/` and runs **`/init-font`** — it inspects the fonts, fills the generated section below, and interviews the user about the proof.
 2. To produce a **print proof**: first delegate content decisions to the **typographer** subagent — it returns a complete proof-content JSON document (schema: `templates/CONTENT_SCHEMA.md`), never code. Save its JSON verbatim as `proof.content.json` at the repo root, then have the **font-engineer** subagent render and verify it: `docker compose run --rm proofer python scripts/render_proof.py`
-3. To produce **web test pages**: delegate to the **web-engineer** subagent (it asks the user which tests they want, then writes vanilla HTML/CSS/JS into `web-tests/`). To view them, serve the repo root so `/fonts/...` URLs resolve: `docker compose run --rm -p 8765:8765 proofer python -m http.server 8765` then open http://localhost:8765/web-tests/
+3. To produce **web test pages**: delegate to the **web-engineer** subagent (it asks the user which tests they want, then writes vanilla HTML/CSS/JS into `web-tests/`). Then bake the font into each page so it is self-contained: `docker compose run --rm proofer python scripts/inline_web_fonts.py`. Open the pages in the **Claude app preview** first (they are self-contained, so no server is needed); if a preview isn't available, double-click the .html, or as a last resort serve the repo root: `docker compose run --rm -p 8765:8765 proofer python -m http.server 8765` then open http://localhost:8765/web-tests/
 
 Boundaries: the typographer never writes code or files; the font-engineer never invents editorial content; the web-engineer only writes inside `web-tests/`.
 

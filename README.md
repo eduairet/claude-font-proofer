@@ -39,7 +39,9 @@ Prefer the terminal? You can build the engine yourself first with `docker compos
 
 ## Viewing web test pages
 
-Browsers are picky about loading font files straight from disk, so serve the project with this command, then open the address it gives you:
+Each web test page is self-contained — the font is embedded in the file — so the easiest way to see one is to **open it in the Claude app preview**. You can also just double-click the `.html` in `web-tests/` to open it in your browser.
+
+If you ever need to serve the folder instead (for example to test across devices), run:
 
     docker compose run --rm -p 8765:8765 proofer python -m http.server 8765
 
