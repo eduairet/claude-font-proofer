@@ -98,14 +98,26 @@ body {
   align-items: baseline;
   column-gap: 8pt;
   margin-bottom: 7pt;
+  /* Each size line is a single nowrap line that can be taller than a normal
+     line of text; keep it whole so it moves to the next page instead of being
+     sliced through the middle at the page boundary. */
+  break-inside: avoid;
 }
 
 .waterfall-text {
   white-space: nowrap;
-  /* visible so glyph overshoots and descenders are never clipped, even at
-     tight line-heights; a long line simply runs past the page edge */
+  /* visible so glyph overshoots and descenders are never clipped mid-page */
   overflow: visible;
-  line-height: 1.06;
+  line-height: 1.1;
+  /* Clipping buffer for the first line on a page. When a line breaks onto a
+     new page Chromium collapses the half-leading above it, so the glyph tops
+     (ascenders, i-dots, accents) sit flush against the content edge and the
+     page box slices them. Unlike leading and margins, PADDING is not trimmed
+     at a page break, so this reserves real space above the glyphs. It is em-
+     based, so it scales with the inline type size set on this span. Pairs with
+     break-inside:avoid on the row, which already prevents bottom-edge and mid-
+     line slicing (a row only stays on a page if it fully fits). */
+  padding-top: 0.2em;
 }
 
 /* -------------------------------------------------------- character set */
@@ -130,6 +142,9 @@ body {
   text-align: center;
   border: 0.4pt solid color-mix(in srgb, var(--fg) 18%, var(--bg));
   padding: 5pt 0 3pt;
+  /* A character group can be taller than a page; when it has to split, break
+     between whole cells rather than slicing a row of glyphs in half. */
+  break-inside: avoid;
 }
 
 .glyph {
@@ -160,6 +175,8 @@ body {
   white-space: nowrap;
   overflow: visible;
   line-height: 1.15;
+  /* clip buffer for the top line on a page (see .waterfall-text) */
+  padding-top: 0.2em;
 }
 
 /* ------------------------------------------------------------ paragraphs */
@@ -193,6 +210,8 @@ body {
 .feature-cell {
   overflow: visible;
   white-space: nowrap;
+  /* clip buffer for the top line on a page (see .waterfall-text) */
+  padding-top: 0.2em;
 }
 
 .feature-head {
@@ -222,10 +241,14 @@ body {
   align-items: baseline;
   column-gap: 8pt;
   margin-bottom: 4pt;
+  /* Single nowrap specimen line — keep it whole across page boundaries. */
+  break-inside: avoid;
 }
 
 .axis-text {
   white-space: nowrap;
   overflow: visible;
   line-height: 1.1;
+  /* clip buffer for the top line on a page (see .waterfall-text) */
+  padding-top: 0.2em;
 }
